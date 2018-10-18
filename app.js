@@ -19,7 +19,7 @@ const ItemCtrl = (function(){
         currentItem: null,
         totalCalories: 0
     }
-//Public methods
+    //Public methods
     return {
         getItems: function() {
             return data.items;
@@ -91,6 +91,10 @@ const UICtrl = (function(){
             //insert item
             document.querySelector(UISelectors.itemList).insertAdjacentElement('beforeend', li)
         },
+        clearInput: function() {
+            document.querySelector(UISelectors.itemNameInput).value = '';
+            document.querySelector(UISelectors.itemCaloriesInput).value = '';
+        },
         getSelectors: function(){
             return UISelectors;
         }
@@ -116,6 +120,8 @@ const App = (function(ItemCtrl, UICtrl){
             const newItem = ItemCtrl.addItem(input.name, input.calories);
             //Add item to UI list
             UICtrl.addListItem(newItem);
+            //clear fields
+            UICtrl.clearInput();
         }
         e.preventDefault();
     }
