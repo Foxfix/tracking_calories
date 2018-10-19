@@ -69,6 +69,22 @@ const ItemCtrl = (function(){
             return found;
 
         },
+        deleteItem: function(id) {
+            //get ids
+            const ids = data.items.map(function(item) {
+                return item.id
+            })
+
+            //get index
+            const index = ids.indexOf(id);
+
+            //remove item
+            data.items.splice(index, 1);
+        },
+        clearAllItems: function() {
+            data.items = [];
+
+        },
         getCurrentItem: function() {
             return data.currentItem;
         },
@@ -95,6 +111,7 @@ const UICtrl = (function(){
     //private 
     const UISelectors = {
         itemList: '#item-list',
+        cleadBtn: '.clear-btn',
         listItems: '#item-list li',
         addBtn: '.add-btn',
         updateBtn: '.update-btn',
@@ -154,6 +171,11 @@ const UICtrl = (function(){
                 }
             });
         },
+        deleteListItem: function(id) {
+            const itemID = `#item-${id}`;
+            const item = document.querySelector(itemID);
+            item.remove();
+        },
         clearInput: function() {
             document.querySelector(UISelectors.itemNameInput).value = '';
             document.querySelector(UISelectors.itemCaloriesInput).value = '';
@@ -163,6 +185,15 @@ const UICtrl = (function(){
             document.querySelector(UISelectors.itemNameInput).value = ItemCtrl.getCurrentItem().name;
             document.querySelector(UISelectors.itemCaloriesInput).value = ItemCtrl.getCurrentItem().calories;
             UICtrl.showEditState();
+        },
+        //remove items
+        removeItems: function() {
+            let listItems = document.querySelectorAll(UISelectors.listItems);
+            // turn Node list into array
+            listItems = Array.from(listItems);
+            listItems.forEach(function(item) {
+                item.remove();
+            })
         },
         //hide the list
         hideList: function() {
@@ -211,6 +242,15 @@ const App = (function(ItemCtrl, UICtrl){
 
        //update item event
        document.querySelector(UISelectors.updateBtn).addEventListener('click', itemUpdateSubmit);
+
+       //delete item event
+       document.querySelector(UISelectors.deleteBtn).addEventListener('click', itemDeleteSubmit);
+       
+       // back button event
+       document.querySelector(UISelectors.backBtn).addEventListener('click', UICtrl.clearEditState);
+
+       // clear item event
+       document.querySelector(UISelectors.cleadBtn).addEventListener('click', clearAllItemsClick);
     }
     //add item submit
     const itemAddSubmit = function(e) {
@@ -268,6 +308,7 @@ const App = (function(ItemCtrl, UICtrl){
 
         //get total calories
         const totalCalories = ItemCtrl.getTotalCalorie();
+
         //add total calories to UI
         UICtrl.showTotalCalories(totalCalories);
 
@@ -275,6 +316,46 @@ const App = (function(ItemCtrl, UICtrl){
         UICtrl.clearEditState();
 
         e.preventDefault();
+    }
+
+    //Delete item submit
+    const itemDeleteSubmit = function(e) {
+        //get current item
+        const currentItem = ItemCtrl.getCurrentItem();
+
+        //delete from data structure
+        ItemCtrl.deleteItem(currentItem.id);
+
+        //Delete from UI
+        UICtrl.deleteListItem(currentItem.id);
+
+        //get total calories
+        const totalCalories = ItemCtrl.getTotalCalorie();
+        
+        //add total calories to UI
+        UICtrl.showTotalCalories(totalCalories);
+
+        //clear fields
+        UICtrl.clearEditState();
+
+        e.preventDefault();
+    }
+
+    //clear items event
+    const clearAllItemsClick = function(){
+        //delete all items form data structure
+        ItemCtrl.clearAllItems();
+
+        //get total calories
+        const totalCalories = ItemCtrl.getTotalCalorie();
+        
+        //add total calories to UI
+        UICtrl.showTotalCalories(totalCalories);
+
+        //Remove from UI
+        UICtrl.removeItems();
+        //hide ul
+        UICtrl.hideList();
     }
 
     //Public methods
